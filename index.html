@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OGHLE Translate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #00ffcc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .terminal {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #00ffcc;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #00ffcc66;
+      max-width: 600px;
+      width: 100%;
+    }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #00ffcc;
+      font-size: 1em;
+    }
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: #ff00ff;
+    }
+    .output {
+      margin-top: 15px;
+      font-size: 1.1em;
+      white-space: pre-wrap;
+    }
+    button {
+      cursor: pointer;
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #00ffaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <label for="lang">Translate to:</label>
+    <select id="lang">
+      <option value="en">🇺🇸 English</option>
+      <option value="hi">🇮🇳 Hindi</option>
+      <option value="es">🇪🇸 Spanish</option>
+      <option value="fr">🇫🇷 French</option>
+      <option value="ja">🇯🇵 Japanese</option>
+      <option value="de">🇩🇪 German</option>
+      <option value="ru">🇷🇺 Russian</option>
+      <option value="zh">🇨🇳 Chinese</option>
+    </select>
+
+    <textarea id="text" rows="3" placeholder="Type text to translate..."></textarea>
+    <button onclick="translate()">🌐 Translate</button>
+
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+
+    async function translate() {
+      const text = document.getElementById("text").value.trim();
+      const lang = document.getElementById("lang").value;
+      const output = document.getElementById("output");
+
+      if (!text) {
+        output.textContent = "> Please enter some text.";
+        return;
+      }
+
+      output.textContent = "> Translating...";
+
+      try {
+        const res = await fetch("https://translate.astian.org/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            q: text,
+            source: "auto",
+            target: lang,
+            format: "text"
+          })
+        });
+        const data = await res.json();
+        output.textContent = `> ${text}\n> ↓\n> ${data.translatedText}`;
+      } catch (err) {
+        output.textContent = "> Translation failed. Try again later.";
+      }
+    }
+  </script>
+</body>
+</html>
