@@ -1,15 +1,15 @@
-
 {
-  "name": "OGHLE Translate",
-  "short_name": "OGHLE",
-  "start_url": "index.html",
+  "name": "Simple Notes",
+  "short_name": "Notes",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#0f0c29",
-  "theme_color": "#00ffcc",
+  "background_color": "#1f2937",
+  "theme_color": "#1f2937",
+  "description": "A simple offline notes app",
   "icons": [
     {
       "src": "icon.png",
-      "sizes": "512x512",
+      "sizes": "192x192",
       "type": "image/png"
     }
   ]

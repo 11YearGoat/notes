@@ -1,20 +1,18 @@
-
-self.addEventListener("install", e => {
+self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open("oghlex-v1").then(cache => {
+    caches.open('notes-cache').then(cache => {
       return cache.addAll([
-        "index.html",
-        "manifest.json",
-        "icon.png"
+        '.',
+        'index.html',
+        'manifest.json',
+        'icon.png'
       ]);
     })
   );
 });
 
-self.addEventListener("fetch", e => {
+self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
-    })
+    caches.match(e.request).then(response => response || fetch(e.request))
   );
 });

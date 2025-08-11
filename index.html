@@ -1,118 +1,189 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>OGHLE Translate</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.png">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Courier New', monospace;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #00ffcc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      padding: 20px;
-    }
-    .terminal {
-      background: rgba(0,0,0,0.6);
-      border: 1px solid #00ffcc;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #00ffcc66;
-      max-width: 600px;
-      width: 100%;
-    }
-    select, textarea, button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-      background: #111;
-      color: #0f0;
-      border: 1px solid #00ffcc;
-      font-size: 1em;
-    }
-    select:focus, textarea:focus {
-      outline: none;
-      border-color: #ff00ff;
-    }
-    .output {
-      margin-top: 15px;
-      font-size: 1.1em;
-      white-space: pre-wrap;
-    }
-    button {
-      cursor: pointer;
-      background: #00ffcc;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #00ffaa;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Notes</title>
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a custom class for the glassmorphism effect */
+        .glass-bg {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Keyframes for note entrance animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .note-card {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Style for the scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+    </style>
 </head>
-<body>
-  <div class="terminal">
-    <label for="lang">Translate to:</label>
-    <select id="lang">
-      <option value="en">🇺🇸 English</option>
-      <option value="hi">🇮🇳 Hindi</option>
-      <option value="es">🇪🇸 Spanish</option>
-      <option value="fr">🇫🇷 French</option>
-      <option value="ja">🇯🇵 Japanese</option>
-      <option value="de">🇩🇪 German</option>
-      <option value="ru">🇷🇺 Russian</option>
-      <option value="zh">🇨🇳 Chinese</option>
-    </select>
+<body class="bg-gray-900 text-gray-200 font-inter min-h-screen p-4 flex flex-col items-center">
 
-    <textarea id="text" rows="3" placeholder="Type text to translate..."></textarea>
-    <button onclick="translate()">🌐 Translate</button>
+    <!-- Main application container with a modern, glassmorphic design -->
+    <div id="notes-app" class="glass-bg rounded-3xl p-6 md:p-8 w-full max-w-4xl mx-auto shadow-2xl space-y-6 md:space-y-8">
 
-    <div class="output" id="output"></div>
-  </div>
+        <!-- Header -->
+        <div class="flex items-center justify-between gap-4 mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                SIMPLE NOTES
+            </h1>
+        </div>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
+        <!-- Note creation section -->
+        <div class="space-y-4">
+            <div class="relative">
+                <textarea id="note-textarea"
+                          class="w-full h-32 p-4 text-lg bg-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 resize-none placeholder-gray-500"
+                          placeholder="Write your note here..."></textarea>
+                <button id="save-note-btn"
+                        class="absolute bottom-4 right-4 flex items-center gap-2 px-6 py-3 font-semibold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 transform active:scale-95">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    Save
+                </button>
+            </div>
+        </div>
 
-    async function translate() {
-      const text = document.getElementById("text").value.trim();
-      const lang = document.getElementById("lang").value;
-      const output = document.getElementById("output");
+        <!-- Notes display container -->
+        <div id="notes-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+            <!-- Notes will be dynamically inserted here -->
+        </div>
 
-      if (!text) {
-        output.textContent = "> Please enter some text.";
-        return;
-      }
+    </div>
 
-      output.textContent = "> Translating...";
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded. Initializing simple notes app...');
+            
+            // Find and replace Lucide icons
+            lucide.createIcons();
 
-      try {
-        const res = await fetch("https://translate.astian.org/translate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            q: text,
-            source: "auto",
-            target: lang,
-            format: "text"
-          })
+            // --- DOM Elements ---
+            const notesContainer = document.getElementById('notes-container');
+            const saveNoteBtn = document.getElementById('save-note-btn');
+            const noteTextarea = document.getElementById('note-textarea');
+            const localStorageKey = 'simple-notes-v2'; // Use a new key to avoid conflicts
+
+            // --- Helper Functions ---
+            const getNotesFromStorage = () => {
+                try {
+                    const notes = localStorage.getItem(localStorageKey);
+                    if (notes === null) {
+                        console.log('No notes found in local storage.');
+                        return [];
+                    }
+                    console.log('Notes successfully retrieved from local storage.');
+                    return JSON.parse(notes);
+                } catch (e) {
+                    console.error('Error parsing notes from local storage:', e);
+                    // Return an empty array on error to prevent app from crashing
+                    return [];
+                }
+            };
+
+            const saveNotesToStorage = (notes) => {
+                try {
+                    localStorage.setItem(localStorageKey, JSON.stringify(notes));
+                    console.log('Notes successfully saved to local storage.');
+                } catch (e) {
+                    console.error('Error saving notes to local storage:', e);
+                }
+            };
+
+            // --- Function to Render All Notes ---
+            const renderNotes = () => {
+                console.log('Rendering notes...');
+                const notes = getNotesFromStorage();
+                notesContainer.innerHTML = ''; // Clear existing notes
+
+                if (!notes || notes.length === 0) {
+                    notesContainer.innerHTML = `
+                        <div class="col-span-full text-center text-gray-500 p-8">
+                            No notes yet. Start writing one above!
+                        </div>
+                    `;
+                    console.log('No notes to render, showing placeholder text.');
+                    return;
+                }
+
+                notes.forEach(note => {
+                    const noteCard = document.createElement('div');
+                    noteCard.className = 'note-card bg-gray-800 p-5 rounded-2xl shadow-md transition-all duration-300 hover:shadow-lg flex flex-col justify-between';
+                    
+                    // Create a paragraph element for the note content
+                    const p = document.createElement('p');
+                    p.className = 'text-sm text-gray-300 mb-4 whitespace-pre-wrap';
+                    // Use textContent instead of innerHTML to prevent XSS (Cross-Site Scripting)
+                    p.textContent = note.content;
+                    
+                    noteCard.appendChild(p);
+                    notesContainer.appendChild(noteCard);
+                });
+                console.log(`Rendered ${notes.length} notes.`);
+            };
+
+            // --- Function to Handle Saving a Note ---
+            const saveNote = () => {
+                const noteContent = noteTextarea.value.trim();
+                if (noteContent === '') {
+                    console.log('Attempted to save an empty note. Aborting.');
+                    return; // Don't save empty notes
+                }
+
+                const newNote = {
+                    id: Date.now().toString(), // Use timestamp as unique ID
+                    type: 'text',
+                    content: noteContent
+                };
+
+                const notes = getNotesFromStorage();
+                notes.push(newNote);
+                saveNotesToStorage(notes);
+
+                renderNotes(); // Re-render the notes list
+                noteTextarea.value = ''; // Clear the textarea
+            };
+
+            // --- Event Listeners ---
+            saveNoteBtn.addEventListener('click', saveNote);
+
+            // Initial render of notes when the page loads
+            renderNotes();
         });
-        const data = await res.json();
-        output.textContent = `> ${text}\n> ↓\n> ${data.translatedText}`;
-      } catch (err) {
-        output.textContent = "> Translation failed. Try again later.";
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>
+
